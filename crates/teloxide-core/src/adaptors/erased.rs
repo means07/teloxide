@@ -90,7 +90,7 @@ where
     }
 }
 
-impl<'a, T, E> IntoFuture for ErasedRequest<'a, T, E>
+impl<T, E> IntoFuture for ErasedRequest<'_, T, E>
 where
     T: Payload,
     E: std::error::Error + Send,
@@ -308,6 +308,8 @@ where
         create_invoice_link,
         answer_shipping_query,
         answer_pre_checkout_query,
+        get_star_transactions,
+        refund_star_payment,
         set_passport_data_errors,
         send_game,
         set_game_score,
@@ -473,7 +475,7 @@ trait ErasableRequester<'a> {
         &self,
         chat_id: Recipient,
         question: String,
-        options: Vec<String>,
+        options: Vec<InputPollOption>,
     ) -> ErasedRequest<'a, SendPoll, Self::Err>;
 
     fn send_dice(&self, chat_id: Recipient) -> ErasedRequest<'a, SendDice, Self::Err>;
@@ -989,6 +991,14 @@ trait ErasableRequester<'a> {
         ok: bool,
     ) -> ErasedRequest<'a, AnswerPreCheckoutQuery, Self::Err>;
 
+    fn get_star_transactions(&self) -> ErasedRequest<'a, GetStarTransactions, Self::Err>;
+
+    fn refund_star_payment(
+        &self,
+        user_id: UserId,
+        telegram_payment_charge_id: String,
+    ) -> ErasedRequest<'a, RefundStarPayment, Self::Err>;
+
     fn set_passport_data_errors(
         &self,
         user_id: UserId,
@@ -1234,7 +1244,7 @@ where
         &self,
         chat_id: Recipient,
         question: String,
-        options: Vec<String>,
+        options: Vec<InputPollOption>,
     ) -> ErasedRequest<'a, SendPoll, Self::Err> {
         Requester::send_poll(self, chat_id, question, options).erase()
     }
@@ -1961,6 +1971,18 @@ where
         ok: bool,
     ) -> ErasedRequest<'a, AnswerPreCheckoutQuery, Self::Err> {
         Requester::answer_pre_checkout_query(self, pre_checkout_query_id, ok).erase()
+    }
+
+    fn get_star_transactions(&self) -> ErasedRequest<'a, GetStarTransactions, Self::Err> {
+        Requester::get_star_transactions(self).erase()
+    }
+
+    fn refund_star_payment(
+        &self,
+        user_id: UserId,
+        telegram_payment_charge_id: String,
+    ) -> ErasedRequest<'a, RefundStarPayment, Self::Err> {
+        Requester::refund_star_payment(self, user_id, telegram_payment_charge_id).erase()
     }
 
     fn set_passport_data_errors(

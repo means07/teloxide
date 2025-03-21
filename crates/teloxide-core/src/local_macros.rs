@@ -646,7 +646,7 @@ macro_rules! requester_forward {
 
         fn send_poll<C, Q, O>(&self, chat_id: C, question: Q, options: O) -> Self::SendPoll where C: Into<Recipient>,
         Q: Into<String>,
-        O: IntoIterator<Item = String> {
+        O: IntoIterator<Item = InputPollOption> {
             let this = self;
             $body!(send_poll this (chat_id: C, question: Q, options: O))
         }
@@ -1455,6 +1455,22 @@ macro_rules! requester_forward {
         fn answer_pre_checkout_query<P>(&self, pre_checkout_query_id: P, ok: bool) -> Self::AnswerPreCheckoutQuery where P: Into<String> {
             let this = self;
             $body!(answer_pre_checkout_query this (pre_checkout_query_id: P, ok: bool))
+        }
+    };
+    (@method get_star_transactions $body:ident $ty:ident) => {
+        type GetStarTransactions = $ty![GetStarTransactions];
+
+        fn get_star_transactions(&self, ) -> Self::GetStarTransactions {
+            let this = self;
+            $body!(get_star_transactions this ())
+        }
+    };
+    (@method refund_star_payment $body:ident $ty:ident) => {
+        type RefundStarPayment = $ty![RefundStarPayment];
+
+        fn refund_star_payment<T>(&self, user_id: UserId, telegram_payment_charge_id: T) -> Self::RefundStarPayment where T: Into<String> {
+            let this = self;
+            $body!(refund_star_payment this (user_id: UserId, telegram_payment_charge_id: T))
         }
     };
     (@method set_passport_data_errors $body:ident $ty:ident) => {

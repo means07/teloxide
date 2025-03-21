@@ -6,8 +6,8 @@ use crate::{
     requests::{JsonRequest, MultipartRequest},
     types::{
         BotCommand, BusinessConnectionId, ChatId, ChatPermissions, InlineQueryResult, InputFile,
-        InputMedia, InputSticker, LabeledPrice, MessageId, Recipient, Rgb, StickerFormat, ThreadId,
-        UserId,
+        InputMedia, InputPollOption, InputSticker, LabeledPrice, MessageId, Recipient, Rgb,
+        StickerFormat, ThreadId, UserId,
     },
     Bot,
 };
@@ -283,7 +283,7 @@ impl Requester for Bot {
     where
         C: Into<Recipient>,
         Q: Into<String>,
-        O: IntoIterator<Item = String>,
+        O: IntoIterator<Item = InputPollOption>,
     {
         Self::SendPoll::new(self.clone(), payloads::SendPoll::new(chat_id, question, options))
     }
@@ -1458,6 +1458,28 @@ impl Requester for Bot {
         Self::AnswerPreCheckoutQuery::new(
             self.clone(),
             payloads::AnswerPreCheckoutQuery::new(pre_checkout_query_id, ok),
+        )
+    }
+
+    type GetStarTransactions = JsonRequest<payloads::GetStarTransactions>;
+
+    fn get_star_transactions(&self) -> Self::GetStarTransactions {
+        Self::GetStarTransactions::new(self.clone(), payloads::GetStarTransactions::new())
+    }
+
+    type RefundStarPayment = JsonRequest<payloads::RefundStarPayment>;
+
+    fn refund_star_payment<C>(
+        &self,
+        user_id: UserId,
+        telegram_payment_charge_id: C,
+    ) -> Self::RefundStarPayment
+    where
+        C: Into<String>,
+    {
+        Self::RefundStarPayment::new(
+            self.clone(),
+            payloads::RefundStarPayment::new(user_id, telegram_payment_charge_id),
         )
     }
 
